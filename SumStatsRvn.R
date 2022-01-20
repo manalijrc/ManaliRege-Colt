@@ -48,6 +48,6 @@ rvn.NICdat$contour<- NULL
 rvn.NICdat$`Peak Power (dB)`<- NULL
 
 # Clean species dat
-rvn.NICdat$`Peak Power Density (dB FS)`<- NULL
-rvn.NICdat$contour<- NULL
-rvn.NICdat$`Peak Power (dB)`<- NULL
+rvn.Species_dat$`Peak Power Density (dB FS)`<- NULL
+rvn.Species_dat$contour<- NULL
+rvn.Species_dat$`Peak Power (dB)`<- NULL
