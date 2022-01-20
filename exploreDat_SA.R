@@ -122,11 +122,6 @@ LFreqBox<-ggplot(data=SpeciesWide,
 
 print(LFreqBox)
 
-# Compare Whistle Types
 
-# Finding mean values of parameters
 
-colMeans(rvn.ESdat[sapply(rvn.ESdat, is.numeric)])
-
-colMeans(rvn.NICdat[sapply(rvn.NICdat, is.numeric)])
 

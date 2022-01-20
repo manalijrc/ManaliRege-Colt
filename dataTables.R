@@ -1,12 +1,11 @@
+library(Rraven)
 setwd("/Volumes/Seagate Backup Plus Drive/Stenella Proj/Raven Data Tables")
 
 # Import El Salvador data tables
 rvn.ESdat <- imp_raven(path = "/Volumes/Seagate Backup Plus Drive/Stenella Proj/Raven Data Tables/El Salvador", all.data=TRUE, only.spectro.view = TRUE, name.from.file = TRUE, ext.case="upper")
 
-
 # add population column
 rvn.ESdat$Population<-"El Salvador"
-
 
 # Import Nicaragua North Data Tables
 rvn.NNdat <- imp_raven(path= "/Volumes/Seagate Backup Plus Drive/Stenella Proj/Raven Data Tables/Nic North Tables", all.data=TRUE, only.spectro.view = TRUE, name.from.file = TRUE, ext.case="upper")
