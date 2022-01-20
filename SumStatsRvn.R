@@ -1,10 +1,5 @@
 # Load Packages
-install.packages('qwraps2')
 library(Rraven)
-library(ggplot2)
-library(ggthemes)
-library(patchwork)
-library(qwraps2)
 library(dplyr)
 
 
@@ -63,10 +58,25 @@ rvn.Species_dat$'selec.file'<- NULL
 rvn.Species_dat$'sound.files'<- NULL
 rvn.Species_dat$'Population' <- NULL
 rvn.Species_dat$Contour <- NULL
-
-# Summary Stats Table
-
-sapply(rvn.Species_dat, mean, sd)
+rvn.Species_dat$`Begin Time (s)`<- NULL
+rvn.Species_dat$`End Time (s)`<- NULL
 
 
-summary(rvn.Species_dat)
+# create personalized summary stats table
+'Mean'<- sapply(rvn.Species_dat, mean)
+as.data.frame(Mean)
+
+'Standard Deviation'<- sapply(rvn.Species_dat, sd)
+as.data.frame(`Standard Deviation`)
+
+'Minimum'<- sapply(rvn.Species_dat, min)
+as.data.frame(Minimum)
+
+'Maximum'<- sapply(rvn.Species_dat, max)
+as.data.frame(Maximum)
+
+'Coefficients of Variation'<- sapply(rvn.Species_dat,function(x) sd(x, na.rm=T) / mean(x, na.rm=T) * 100)
+as.data.frame(`Coefficients of Variation`)
+
+SumStats<- rbind(Mean, `Standard Deviation`,`Coefficients of Variation`,Maximum, Minimum)
+SumStats
