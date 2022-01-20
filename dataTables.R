@@ -1,13 +1,3 @@
-# Load Packages
-install.packages('qwraps2')
-library(Rraven)
-library(ggplot2)
-library(ggthemes)
-library(patchwork)
-library(qwraps2)
-library(dplyr)
-
-
 setwd("/Volumes/Seagate Backup Plus Drive/Stenella Proj/Raven Data Tables")
 
 # Import El Salvador data tables
@@ -56,17 +46,4 @@ rvn.NICdat$`Peak Power (dB)`<- NULL
 rvn.Species_dat$`Peak Power Density (dB FS)`<- NULL
 rvn.Species_dat$contour<- NULL
 rvn.Species_dat$`Peak Power (dB)`<- NULL
-rvn.Species_dat$'Selection'<- NULL
-rvn.Species_dat$'Channel'<- NULL
-rvn.Species_dat$'View'<- NULL
-rvn.Species_dat$'selec.file'<- NULL
-rvn.Species_dat$'sound.files'<- NULL
-rvn.Species_dat$'Population' <- NULL
-rvn.Species_dat$Contour <- NULL
 
-# Summary Stats Table
-
-sapply(rvn.Species_dat, mean, sd)
-
-
-summary(rvn.Species_dat)
