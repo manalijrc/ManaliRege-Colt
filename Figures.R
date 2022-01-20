@@ -122,14 +122,22 @@ DurBox<-ggplot(data=SpeciesWide,
 
 print(DurBox)
 
+# compare Nic vs ES delta freq
+DFBox<-ggplot(data=SpeciesWide, 
+               mapping=aes(x=Population,y=`Delta Freq (Hz)`,fill=Population)) + 
+  geom_boxplot()+
+  theme(legend.position="none")
+
+print(DFBox)
+
 # Whistle type dataframe, species wide
 WhistleCounts<- rvn.Species_dat$Contour
-sum(str_count(WhistleTypes, 'upsweep'))
-sum(str_count(WhistleTypes, 'downsweep'))
-sum(str_count(WhistleTypes, 'convex'))
-sum(str_count(WhistleTypes, 'concave'))
-sum(str_count(WhistleTypes, 'constant'))
-sum(str_count(WhistleTypes, 'sine'))
+sum(str_count(WhistleCounts, 'upsweep'))
+sum(str_count(WhistleCounts, 'downsweep'))
+sum(str_count(WhistleCounts, 'convex'))
+sum(str_count(WhistleCounts, 'concave'))
+sum(str_count(WhistleCounts, 'constant'))
+sum(str_count(WhistleCounts, 'sine'))
 
 WhistleType<- c('upsweep', 'downsweep', 'convex', 'concave', 'constant', 'sine')
 Count<- c(456, 19, 50, 58, 32, 92)
@@ -150,6 +158,8 @@ Percent.plot<- ggplot(Percent.type, aes(x=WhistleType,y=Percent)) +
   geom_col(color='black', fill='royalblue')
 print(Percent.plot)
 
-# dataframe of Whistle type
+# dataframe of Whistle types
 
 Whistle.Type<- data.frame(WhistleType, Count, Percent)
+
+
