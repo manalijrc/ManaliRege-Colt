@@ -5,7 +5,7 @@ library(ggplot2)
 library(ggthemes)
 library(patchwork)
 library(stringr)
-library(tinytex)
+
 setwd("/Volumes/Seagate Backup Plus Drive/Stenella Proj/Raven Data Tables")
 
 # Import El Salvador data tables
@@ -73,12 +73,16 @@ Nicaragua <- ggplot(data=rvn.NICdat, mapping=aes(x=`Low Freq (Hz)`,y=`High Freq 
   geom_point()
 print(Nicaragua)
 
+
 # Compare Nic vs ES min vs max freq scatterplot
 Combine <- ggplot()+
   geom_point(data=rvn.NICdat, mapping=aes(x=`Low Freq (Hz)`,y=`High Freq (Hz)`),color="blue") + 
   geom_point(data=rvn.ESdat, mapping=aes(x=`Low Freq (Hz)`,y=`High Freq (Hz)`),color="red")
-
 print(Combine)
+
+Species <- ggplot(data=rvn.Species_dat, mapping=aes(x=`Low Freq (Hz)`,y=`High Freq (Hz)`)) + 
+  geom_point()
+print(Species)
 
 # Compare Nic vs ES Max freq
 # Combine Nic, ES and Species data tables
@@ -139,8 +143,8 @@ sum(str_count(WhistleCounts, 'concave'))
 sum(str_count(WhistleCounts, 'constant'))
 sum(str_count(WhistleCounts, 'sine'))
 
-WhistleType<- c('upsweep', 'downsweep', 'convex', 'concave', 'constant', 'sine')
-Count<- c(456, 19, 50, 58, 32, 92)
+WhistleType<- c('upsweep', 'sine', 'concave', 'convex', 'constant', 'downsweep')
+Count<- c(456, 92, 58, 50, 32, 19)
 Contour.type<- data.frame(WhistleType, Count)
 
 # Whistle type bargraph by count
@@ -150,7 +154,7 @@ print(Type.plot)
 
 # Whistle type bar graph by percentage
 
-Percent<- c(64.497878, 2.687411, 7.072136, 8.203678, 4.526167, 13.012729)
+Percent<- c(64.497878, 13.012729, 8.203678, 7.072136, 4.526167, 2.687411)
 
 Percent.type<- data.frame(WhistleType, Percent)
 
@@ -162,4 +166,39 @@ print(Percent.plot)
 
 Whistle.Type<- data.frame(WhistleType, Count, Percent)
 
+# Whistle types by location
+# El salvador
+EScount<- rvn.ESdat$Contour
+sum(str_count(EScount, 'upsweep'))
+sum(str_count(EScount, 'downsweep'))
+sum(str_count(EScount, 'convex'))
+sum(str_count(EScount, 'concave'))
+sum(str_count(EScount, 'constant'))
+sum(str_count(EScount, 'sine'))
 
+EStype<- c('upsweep', 'sine', 'concave', 'constant', 'convex', 'downsweep')
+ESocc<- c(229, 38, 19, 17, 14, 5)
+ESpercent<- c(71.118012, 11.801242, 5.900621, 5.279503, 4.347826, 1.552795)
+ES.Contour.type<- data.frame(EStype, ESocc, ESpercent)
+
+ES.type.plot<- ggplot(ES.Contour.type, aes(x=EStype,y=ESocc)) +
+  geom_col(color='black', fill='royalblue')
+print(ES.type.plot)
+
+# Nicaragua
+NICcount<- rvn.NICdat$Contour
+sum(str_count(NICcount, 'upsweep'))
+sum(str_count(NICcount, 'downsweep'))
+sum(str_count(NICcount, 'convex'))
+sum(str_count(NICcount, 'concave'))
+sum(str_count(NICcount, 'constant'))
+sum(str_count(NICcount, 'sine'))
+
+NICtype<- c('upsweep', 'sine', 'concave', 'convex', 'constant', 'downsweep')
+NICocc<- c(227, 54, 39, 36, 15, 14)
+NICpercent<- c(58.961039, 14.025974, 10.129870, 9.350649, 3.896104, 3.636364)
+NIC.Contour.type<- data.frame(NICtype, NICocc, NICpercent)
+print(NIC.Contour.type)
+NIC.type.plot<- ggplot(NIC.Contour.type, aes(x=NICtype,y=NICocc)) +
+  geom_col(color='black', fill='royalblue')
+print(NIC.type.plot)

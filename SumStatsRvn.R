@@ -79,4 +79,4 @@ as.data.frame(Maximum)
 as.data.frame(`Coefficients of Variation`)
 
 SumStats<- rbind(Mean, `Standard Deviation`,`Coefficients of Variation`,Maximum, Minimum)
-SumStats
+print(SumStats)
