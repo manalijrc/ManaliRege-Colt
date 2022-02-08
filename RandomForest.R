@@ -3,28 +3,30 @@
 # https://www.guru99.com/r-random-forest-tutorial.html #
 
 library(dplyr)
-data_train <- read.csv("https://raw.githubusercontent.com/guru99-edu/R-Programming/master/train.csv")
-glimpse(data_train)
-data_test <- read.csv("https://raw.githubusercontent.com/guru99-edu/R-Programming/master/test.csv") 
-glimpse(data_test)
-
+library(lattice)
 library(randomForest)
+
 library(caret)
 library(e1071)
 
 library(randomForest)
 library(datasets)
 library(caret)
-
-data = random_forest
+setwd("/Volumes/Seagate Backup Plus Drive/Stenella Proj/Analysis")
+# Load dataframes
+Coastal<- read.csv('Coastal_Measurements_44.csv')
+Oceanic<- read.csv('Oceanic_Measurements_44.csv')
+random_forest<- rbind(Coastal,Oceanic)
+random_forest$Recording<- NULL
+data<- random_forest
 data$Ecotype <- as.factor(data$Ecotype)
 set.seed(222)
 ind <- sample(2, nrow(data), replace = TRUE, prob = c(0.67, 0.33))
 train <- data[ind==1,]
 test <- data[ind==2,]
 
-data_train = train
-data_test = test
+data_train<- train
+data_test<- test
 
 trControl <- trainControl(method = "cv",
                           number = 10,

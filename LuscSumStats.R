@@ -2,6 +2,7 @@
 library(dplyr)
 library(ggplot2)
 setwd("/Volumes/Seagate Backup Plus Drive/Stenella Proj/Analysis")
+options(scipen=999)
 
 # Import Nicaragua Data
 NicData44 <- read.csv('Nic_measurements44.csv')
@@ -18,55 +19,9 @@ EsData96 <- read.csv('ES_measurements96.csv')
 EsData96$Recording<- NULL
 
 # Import Species Data
-CoastData96<- read.csv('Measurements_96.csv')
-CoastData44<- read.csv('Measurements_44.csv')
+CoastData96<- read.csv('Coastal_Measurements_96.csv')
+CoastData44<- read.csv('Coastal_Measurements_44.csv')
 
-
-CoastData44$Recording<- NULL
-
-CoastData96$Recording<- NULL
-
-# Compare Nic and ES parameters in box plots
-# Max Freq
-MaxFreqBox.plot<-ggplot(data=CoastData44, 
-                 mapping=aes(x=Population,y=Maximum.Frequency..kHz.,fill=Population)) + 
-  geom_boxplot()+
-  theme(legend.position="none")
-
-print(MaxFreqBox.plot)
-
-t.test(NicData44$Maximum.Frequency..kHz.,EsData96$Maximum.Frequency..kHz.)
-
-# Min Freq
-MinFreqBox.plot<-ggplot(data=CoastData44, 
-                        mapping=aes(x=Population,y=Minimum.Frequency..kHz.,fill=Population)) + 
-  geom_boxplot()+
-  theme(legend.position="none")
-
-print(MinFreqBox.plot)
-
-t.test(NicData44$Minimum.Frequency..kHz.,EsData96$Minimum.Frequency..kHz.)
-
-# Peak Freq
-PFreqBox.plot<-ggplot(data=CoastData44, 
-                        mapping=aes(x=Population,y=Peak.Frequency..kHz.,fill=Population)) + 
-  geom_boxplot()+
-  theme(legend.position="none")
-
-print(PFreqBox.plot)
-
-t.test(NicData44$Peak.Frequency..kHz.,EsData96$Peak.Frequency..kHz.)
-
-
-# Duration
-DurBox.plot<-ggplot(data=CoastData44, 
-                      mapping=aes(x=Population,y=Duration..s.,fill=Population)) + 
-  geom_boxplot()+
-  theme(legend.position="none")
-
-print(DurBox.plot)
-
-t.test(NicData44$Duration..s.,EsData96$Duration..s.)
 
 # Create Summary Stats for 96 sampling rate
 CoastData96$Population<- NULL
