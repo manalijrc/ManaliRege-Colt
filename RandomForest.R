@@ -5,20 +5,24 @@
 library(dplyr)
 library(lattice)
 library(randomForest)
-
 library(caret)
 library(e1071)
-
 library(randomForest)
 library(datasets)
 library(caret)
 setwd("/Volumes/Seagate Backup Plus Drive/Stenella Proj/Analysis")
+
 # Load dataframes
-Coastal<- read.csv('Coastal_Measurements_44.csv')
-Oceanic<- read.csv('Oceanic_Measurements_44.csv')
-random_forest<- rbind(Coastal,Oceanic)
-random_forest$Recording<- NULL
-data<- random_forest
+# Take random sample from coastal data frame
+BigCoastal<- read.csv('Coastal_Measurements_44.csv')
+Coastal<- sample_n(BigCoastal, 467)
+Coastal$Population<- NULL
+#Combine Coastal and Oceanic df
+Ocean<- read.csv('Oceanic_Measurements_44.csv')
+SpeciesSubDat44<- rbind(Coastal, Ocean)
+SpeciesSubDat44$Recording<- NULL
+
+data<- SpeciesSubDat44
 data$Ecotype <- as.factor(data$Ecotype)
 set.seed(222)
 ind <- sample(2, nrow(data), replace = TRUE, prob = c(0.67, 0.33))
@@ -40,6 +44,7 @@ rf_default <- train(Ecotype ~., data = data_train, method = "rf", metric = "Accu
 # Print the results
 print(rf_default)
 
+#tune mtry
 set.seed(1234)
 tuneGrid <- expand.grid(.mtry = c(1: 10))
 rf_mtry <- train(Ecotype ~.,
@@ -86,7 +91,7 @@ max(rf_mtry$results$Accuracy)
 best_mtry <- rf_mtry$bestTune$mtry 
 best_mtry
 
-
+# tune max nodes
 store_maxnode <- list()
 tuneGrid <- expand.grid(.mtry = best_mtry)
 for (maxnodes in c(5: 15)) {

@@ -44,7 +44,11 @@ t<- tuneRF(train[,-4], train[,4],
            ntreeTry= 150,
            trace= TRUE,
            improve=0.5) # mtry=2 is best
-# # nodes in the rree
+
+rf <- randomForest(Ecotype ~., data=train, ntree=1000, mtry=2, proximity=TRUE) 
+print(rf)
+
+# # nodes in the tree
 hist(treesize(rf),
      main = 'No. of Nodes for the Trees',
      col = 'green')
