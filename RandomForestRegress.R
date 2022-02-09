@@ -26,27 +26,32 @@ test <- data[ind==2,] # 299 whistles
 rf <- randomForest(Ecotype ~., data=train, proximity=TRUE) 
 print(rf)
 
-
+# Prediction and confusion matrix for train data
 p1 <- predict(rf, train)
 confusionMatrix(p1, train$Ecotype)
 
 #Train data accuracy is 100% that indicates all the values classified correctly
-
+# Prediction and Confusion matrix for Test data 
 p2 <- predict(rf, test)
-confusionMatrix(p2, test$Ecotype) # test data accuracy is 83%
+confusionMatrix(p2, test$Ecotype) # test data accuracy is 82%
 
-plot(rf) # error rate of rf around 22.36%
+plot(rf) # error rate of rf around 22.36% for 500 trees, mtry of 2
 
 # Tune mtry
-t<- tuneRF(train[,-4], train[,4],
+t<- tuneRF(train[,-1], train[,1],
            stepFactor = 0.5,
            plot=TRUE,
-           ntreeTry= 150,
+           ntreeTry= 500,
            trace= TRUE,
-           improve=0.5) # mtry=2 is best
-
+           improve=.05) # mtry=2 is best
+best.m<- t[t[,2]==min(t[,2]),1]
+print(t)
+print(best.m)
+set.seed(222)
 rf <- randomForest(Ecotype ~., data=train, ntree=1000, mtry=2, proximity=TRUE) 
 print(rf)
+
+
 
 # # nodes in the tree
 hist(treesize(rf),
@@ -68,6 +73,4 @@ partialPlot(rf, as.data.frame(train), Peak.Frequency..kHz., "Coastal")
 partialPlot(rf, as.data.frame(train), Duration..s., "Coastal")
 partialPlot(rf, as.data.frame(train), Duration..s., "Oceanic")
 
-# MDS of proximity matrix
 
-MDSplot(rf, train$Ecotype)
