@@ -16,16 +16,19 @@ setwd("/Volumes/Seagate Backup Plus Drive/Stenella Proj/Analysis")
 # Take random sample from coastal data frame
 BigCoastal<- read.csv('Coastal_Measurements_44.csv')
 Coastal<- sample_n(BigCoastal, 467)
-Coastal$Population<- NULL
+write.csv(Coastal, "/Volumes/Seagate Backup Plus Drive/Stenella Proj/Analysis/CoastalSubsample.csv")
+CoastalSub<- read.csv('CoastalSubsample.csv')
+CoastalSub$Population<- NULL
+CoastalSub$X<- NULL
 #Combine Coastal and Oceanic df
 Ocean<- read.csv('Oceanic_Measurements_44.csv')
-SpeciesSubDat44<- rbind(Coastal, Ocean)
+SpeciesSubDat44<- rbind(CoastalSub, Ocean)
 SpeciesSubDat44$Recording<- NULL
 
 data<- SpeciesSubDat44
 data$Ecotype <- as.factor(data$Ecotype)
-set.seed(222)
-ind <- sample(2, nrow(data), replace = TRUE, prob = c(0.67, 0.33))
+set.seed(1234)
+ind <- sample(2, nrow(data), replace = TRUE, prob = c(0.67, 0.33)) # splitting data
 train <- data[ind==1,]
 test <- data[ind==2,]
 
@@ -47,7 +50,7 @@ print(rf_default) # algorithm used 500 trees and tested 3 values of mtry: 2, 4, 
 
 #tune mtry for a higher accuracy
 set.seed(1234)
-tuneGrid <- expand.grid(.mtry = c(1: 10)) # test mtry from 1-10
+tuneGrid <- expand.grid(.mtry = c(1: 7)) # test mtry from 1-7
 rf_mtry <- train(Ecotype ~.,
                  data = data_train,
                  method = "rf",
@@ -56,15 +59,15 @@ rf_mtry <- train(Ecotype ~.,
                  trControl = trControl,
                  importance = TRUE,
                  nodesize = 14,
-                 ntree = 300)
+                 ntree = 500)
 print(rf_mtry)
-
+plot(rf_mtry)
 
 rf_mtry$bestTune$mtry
-max(rf_mtry$results$Accuracy)
+max(rf_mtry$results$Accuracy) # accuracy of 79.28139%
 
 best_mtry <- rf_mtry$bestTune$mtry 
-best_mtry #best mtry=3
+best_mtry #best mtry=2
 
 # tune max nodes by creating a loop
 store_maxnode <- list() # results of code stored in this list
@@ -87,7 +90,7 @@ for (maxnodes in c(5: 25)) { #compute the model with values of maxnodes 15-25
 results_mtry <- resamples(store_maxnode)# arrange the results of the model
 summary(results_mtry) # print summary of all combinations , try with higher values to see if you can get higher numbers if necessary
 
-# my highest value was 17 and 18
+# my highest value was 19
 
 # tune the number of trees, same method as maxnodes
 store_maxtrees <- list()
@@ -101,16 +104,16 @@ for (ntree in c(250, 300, 350, 400, 450, 500, 550, 600, 800, 1000, 2000, 10000, 
                        trControl = trControl,
                        importance = TRUE,
                        nodesize = 14,
-                       maxnodes = 29,
+                       maxnodes = 19,
                        ntree = ntree)
   key <- toString(ntree)
   store_maxtrees[[key]] <- rf_maxtrees
 }
 results_tree <- resamples(store_maxtrees)
-summary(results_tree) # ntree should be 10,000 or 15,000 based on this
+summary(results_tree) # ntree should be 500 (accuracy the same above 500)
 
 # run final model
-fit_rf <- train(Ecotype ~.,
+final_rf <- train(Ecotype ~.,
                 data_train,
                 method = "rf",
                 metric = "Accuracy",
@@ -118,13 +121,15 @@ fit_rf <- train(Ecotype ~.,
                 trControl = trControl,
                 importance = TRUE,
                 nodesize = 14,
-                ntree = 10000,
-                maxnodes = 17)
+                ntree = 500,
+                maxnodes = 19)
 
 # evaluate model 
-prediction <-predict(fit_rf, data_test)
+prediction <-predict(final_rf, data_test)
 
 confusionMatrix(prediction, data_test$Ecotype)
 
 # visualize the model
-varImp(fit_rf)
+varImp(final_rf)
+
+# Final accuracy = 0.7881
