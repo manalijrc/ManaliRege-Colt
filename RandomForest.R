@@ -16,26 +16,46 @@ library(datasets)
 # BigCoastal<- read.csv('Coastal_Measurements_44.csv')
 # Coastal<- sample_n(BigCoastal, 467)
 # write.csv(Coastal, "/Volumes/Seagate Backup Plus Drive/Stenella Proj/Analysis/CoastalSubsample.csv")
+# load dataframes
 CoastalSub<- read.csv('CoastalSubsample.csv')
 CoastalSub$X<- NULL
+CoastalSub$Recording<- NULL
 #Combine Coastal and Oceanic df
 Ocean<- read.csv('Oceanic_Measurements_44.csv')
-SpeciesSubDat44<- rbind(CoastalSub, Ocean)
-SpeciesSubDat44$Recording<- NULL
+Ocean$Recording<-NULL
+# species data set
+Species44<- rbind(CoastalSub, Ocean)
 
-data<- SpeciesSubDat44
-data$Ecotype <- as.factor(data$Ecotype)
+# Test for correlation between variables with Pearson's Test
+
+pCor<- cor(Species44[,unlist(lapply(Species44,is.numeric))])
+
+# no correlations greater than ±0.8, good to go
+
+# take 75% and 25% of each ecotype dataset for training and testing dataset
 set.seed(1234)
-ind <- sample(2, nrow(data), replace = TRUE, prob = c(0.67, 0.33)) # splitting data
-train <- data[ind==1,]
-test <- data[ind==2,]
-
-data_train<- train
-data_test<- test
-
+indC<- sample(2,nrow(CoastalSub), replace=TRUE, prob= c(0.75,0.25))
+trainC<- CoastalSub[indC==1,] 
+testC<- CoastalSub[indC==2,] 
 
 set.seed(1234)
+indO<- sample(2, nrow(Ocean), replace=TRUE, prob= c(0.75,0.25))
+trainO<- Ocean[indO==1,]
+testO<- Ocean[indO==2,]
+
+train<- rbind(trainC,trainO) #700 whistles
+test<- rbind(testC,testO) #232 whistles
+
+# set ecotype as a factor
+train$Ecotype<- as.factor(train$Ecotype)
+str(train)
+
+test$Ecotype<- as.factor(test$Ecotype)
+str(test)
+
+
 # Run the model with default values
+set.seed(1234)
 rf_default <- randomForest(Ecotype ~., data=train)
 # Print the results
 rf_default 
@@ -43,24 +63,25 @@ rf_default
 # Number of trees: 500
 # No. of variables tried at each split: 2
 
-# OOB estimate of  error rate: 20.32%
+# OOB estimate of  error rate: 19.86%
 # Confusion matrix:
 #   Coastal Oceanic class.error
-# Coastal     257      59   0.1867089
-# Oceanic      69     245   0.2197452
+# Coastal     284      66   0.1867089
+# Oceanic      73     277   0.2197452
 
 # Start Tuning
 # for k-fold cross validation use trainControl() function
 trControl <- trainControl(method = "repeatedcv",
                           number = 10,repeats=10,
                           search = "grid",
+                          selectionFunction = "best",
                           savePredictions=TRUE,
                           classProbs=TRUE)
 #tune mtry for a higher accuracy
 set.seed(1234)
-tuneGrid <- expand.grid(.mtry = c(2: 7)) # test mtry from 2-7
+tuneGrid <- expand.grid(.mtry = c(1: 7)) # test mtry from 2-7
 rf_mtry <- train(Ecotype ~.,
-                 data = data_train,
+                 data = train,
                  method = "rf",
                  metric = "Accuracy",
                  tuneGrid = tuneGrid,
@@ -98,22 +119,22 @@ best_mtry
 # my highest value was 8 @ 95.24% accuracy
 
 # tune the number of trees, same method as maxnodes
-# store_maxtrees <- list()
-# tuneGrid<- expand.grid(.mtry=3)
-# for (ntree in c(250, 350, 450, 550, 800, 1000, 2000, 5000, 10000)) {
-#  set.seed(1234)
-#  rf_maxtrees <- train(Ecotype ~.,
-#                       data = data_train,
-#                       method = "rf",
-#                       metric = "Accuracy",
-#                       tuneGrid = tuneGrid,
-#                       trControl = trControl,
-#                       ntree = ntree)
-#  key <- toString(ntree)
-#  store_maxtrees[[key]] <- rf_maxtrees
-#}
-# results_tree <- resamples(store_maxtrees)
-# summary(results_tree) # ntree should be between 250 and 2000 (same accuracy between)
+store_maxtrees <- list()
+tuneGrid<- expand.grid(.mtry=2)
+for (ntree in c(100,500,1000,5000,10000)) {
+set.seed(1234)
+rf_maxtrees <- train(Ecotype ~.,
+                      data = train,
+                      method = "rf",
+                      metric = "Accuracy",
+                      tuneGrid = tuneGrid,
+                      trControl = trControl,
+                      ntree = ntree)
+ key <- toString(ntree)
+ store_maxtrees[[key]] <- rf_maxtrees
+}
+results_tree <- resamples(store_maxtrees)
+summary(results_tree) # ntree should be between 250 and 2000 (same accuracy between)
 
 # run final model
 set.seed(1234)
