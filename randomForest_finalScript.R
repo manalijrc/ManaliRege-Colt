@@ -1,4 +1,4 @@
-# Random forest script based off of Maching Learning in R book
+# Random forest script based off of Maching Learning in R by Brett Lantz
 # 2/16/22
 # MRC
 #--------------------------------------------------------------
@@ -10,36 +10,40 @@ library(lattice)
 library(e1071)
 library(vcd)
 library(pROC)
-# load dataframes
-# Take random sample from coastal data frame
+
+# Load Dataframes
+
 BigCoastal<- read.csv('Coastal_Measurements_44.csv')
 BigCoastal$Population <- NULL
 BigCoastal$Recording<- NULL
-#Combine Coastal and Oceanic df
+
 Ocean<- read.csv('Oceanic_Measurements_44.csv')
 Ocean$Recording<-NULL
-# species data set
+
+# Create species-wide dataframe
 Species44<- rbind(BigCoastal, Ocean)
 str(Species44)
+
 # Test for correlation between variables with Pearson's Test
 pCor<- cor(Species44[,unlist(lapply(Species44,is.numeric))])
-# Species44$Delta.Frequency..kHz. <- NULL
+
 # no correlations greater than ±0.8 
 
-# take 67% and 33% of each ecotype dataset for training and testing dataset
+# Take random subsample of bigger dataset to create equal sample size
+# To do this, take random rows from species dataset
 coastal_indices <- which(Species44$Ecotype=="Coastal")
 
-# take random rows from species dataset 
 set.seed(1234)
 coastal_samples <- Species44[sample(x=coastal_indices, 466, replace=TRUE),]
-
+# this creates a sample size of 466 coastal whistles to match the offshore sample size
+# create final species wide dataset
 species_final <- rbind(coastal_samples, Ocean)
 
 
 # set ecotype as a factor
 species_final$Ecotype<- as.factor(species_final$Ecotype)
 
-# create training and testing
+# create training and testing datasets
 trainIndex <- createDataPartition(species_final$Ecotype, p = .67,
                                   list = FALSE,
                                   times = 1)
@@ -47,6 +51,7 @@ train <- species_final[ trainIndex,]
 test <- species_final[-trainIndex,]
 table(train$Ecotype)
 table(test$Ecotype)
+
 # Run default rf runs with ntrees=500, mtry=sqrt(features)=2 in my case
 set.seed(1234)
 rf_default <- randomForest(Ecotype ~., data=train, importance=TRUE) 
@@ -71,8 +76,8 @@ ctrl<- trainControl(method='repeatedcv',
                     classProbs = TRUE,
                     summaryFunction = twoClassSummary)
 
-# Tuning: set tuning grid for mtry
-grid_rf<- expand.grid(mtry= c(1, 2, 3, 4, 6, 7))
+# Tuning: set tuning grid for mtry (# variables considered at each split)
+grid_rf<- expand.grid(mtry= c(1, 2, 3, 4, 6, 7)) # test however many variables you have
 
 # Tune mtry with train() function using ctrl
 set.seed(1234)
@@ -105,7 +110,7 @@ m_rf
 # The final value used for the model was
 # mtry = 2.
 
-# plot ROC curve
+# plot ROC curve, one way to assess accuracy
 
 roc_rf<- roc(m_rf$pred$obs, m_rf$pred$Coastal)
 plot(roc_rf, col='blue', legacy.axes=TRUE)
@@ -142,7 +147,9 @@ summary(ntree_results)
 # 800 0.9295412 0.9737903    0
 # best ntrees=300
 
-# Run final RF
+# use smallest ntree that provides max area under ROC curve, in my case 300
+
+# Run final RF w/ tuned parameters
 set.seed(1234)
 final_rf<- randomForest(Ecotype ~., data=train,
                         mtry=2,
@@ -161,15 +168,9 @@ final_rf
 # class.error
 # Coastal   0.1341853
 # Oceanic   0.1980831
-pTrain<- predict(final_rf, train)
-confusionMatrix(pTrain, train$Ecotype)
 
-Kappa(final_rf$confusion[1:2,1:2])
-#           value     ASE
-# Unweighted 0.6677 0.02969
-# Weighted   0.6677 0.02969
 
-# final rf on test data
+# Assess accuracy of final rf on test data
 set.seed(1234)
 pTest<- predict(final_rf, test)
 confusionMatrix(pTest, test$Ecotype)
@@ -200,7 +201,7 @@ confusionMatrix(pTest, test$Ecotype)
                                           
 #        'Positive' Class : Coastal
 
-
+# Assess variable importance
 varImpPlot(final_rf,
            sort = TRUE, # sort in decreasing order
            n.var = 7, # how many variables
@@ -234,7 +235,4 @@ partialPlot(final_rf, as.data.frame(train), Duration..s., "Oceanic",
             xlab='Duration', 
             main='')
 
-library(party)
-mod<- ctree(Ecotype~., train)
-plot(mod)
-print(mod)
+

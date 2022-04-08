@@ -73,10 +73,6 @@ print(q0) # print iNEXT results summary
 
 q0$DataInfo$SC # sample coverage: 0.8557; 0.8358 
 
-# T-test q=0
-tsum.test(mean.x=295.262,   s.x=39.844, n.x=526,
-          mean.y=291.921, s.y=42.301, n.y=444)
-# p-value= 0.2085
 
 # Q = 1
 
@@ -92,10 +88,6 @@ print(q1) # print iNEXT results summary
 # 5 Oceanic Shannon diversity  103.661   144.923  9.798 125.719 164.127
 # 6 Oceanic Simpson diversity   73.503    87.887  6.937  74.290 101.484
 
-# T-test q=1
-tsum.test(mean.x=133.842,   s.x=5.031, n.x=526,
-          mean.y=144.923, s.y=6.401, n.y=444)
-# p-value< 2.2e-16
 
 # Q = 2
 
@@ -112,10 +104,6 @@ print(q2) # print iNEXT results summary
 # 5 Oceanic Shannon diversity  103.661   144.923  9.579 126.148 163.698
 # 6 Oceanic Simpson diversity   73.503    87.887  6.647  74.859 100.916
 
-# T-test q=2
-tsum.test(mean.x=82.384,   s.x=2.949, n.x=526,
-          mean.y=87.887, s.y=4.343, n.y=444)
-# p-value < 2.2e-16
 
 # Estimate diversity at cMax ----------------------------------------------
 
@@ -137,17 +125,6 @@ SC <- estimateD(combined, datatype = "abundance", base="coverage", level=0.90256
 #5 Oceanic 888 extrapolated     1 0.903 123.610 109.961 137.260
 #6 Oceanic 888 extrapolated     2 0.903  80.054  69.358  90.751
 
-# T-tests for significance
-
-# Richness
-tsum.test(mean.x=202.553,   s.x=7.324, n.x=526,
-          mean.y=208.853, s.y=8.251, n.y=444) # p-value = < 2.2e-16
-# Shannon
-tsum.test(mean.x=113.293,   s.x=3.925, n.x=526,
-          mean.y=123.737, s.y=4.55, n.y=444) # p-value < 2.2e-16
-# Simpson
-tsum.test(mean.x=75.580,   s.x=2.877, n.x=526,
-          mean.y=80.086, s.y=3.566, n.y=444) # p-value = < 2.2e-16
 
 # Sample-size-based RE-EX curves ------------------------------------------
 
@@ -276,3 +253,100 @@ g8 <- g + scale_colour_manual(values=c("#DC3220", "#005AB5")) +
   theme(axis.title.x = element_text(size = 14)) +
   xlim(0,1500)
 g8
+
+
+# Running iNEXT at 84% CI: sample based
+q084 <- iNEXT(combined, q=0, datatype="abundance", conf=0.84)
+q084
+q184 <- iNEXT(combined, q=1, datatype="abundance", conf=0.84)
+q184
+q284 <- iNEXT(combined, q=2, datatype="abundance", conf=0.84)
+q284
+sample084 <- ggiNEXT(q084, type=1) +   
+  labs(x="Number of Contours", y="Whistle diversity", title="q=0") +
+  theme_clean(base_size=14,
+              base_family="serif") +
+  theme(legend.position="none") +
+  theme(legend.title = element_text(size = 10,
+                                    family= "serif")) + 
+  theme(legend.text = element_text(size = 10,
+                                   family="serif"))+
+  xlim(0,1150)
+Sample084 <- sample084+ scale_colour_manual(values=c("#DC3220", "#005AB5")) +
+  scale_fill_manual(values=c("#DC3220", "#005AB5"))
+
+
+sample184 <- ggiNEXT(q184, type=1) +   
+  labs(x="Number of Contours", y="Whistle diversity", title="q=1") +
+  theme_clean(base_size=14,
+              base_family="serif") +
+  theme(legend.position="none") +
+  theme(legend.title = element_text(size = 10,
+                                    family= "serif")) +
+  theme(legend.text = element_text(size = 10,
+                                   family="serif"))+
+  xlim(0,1150)
+
+Sample184 <- sample184+ scale_colour_manual(values=c("#DC3220", "#005AB5")) +
+  scale_fill_manual(values=c("#DC3220", "#005AB5"))
+
+
+sample284 <- ggiNEXT(q284, type=1) +   
+  labs(x="Number of Contours", y="Whistle diversity", title="q=2") +
+  theme_clean(base_size=14,
+              base_family="serif") +
+  theme(legend.title = element_text(size = 10,
+                                    family= "serif")) +
+  theme(legend.text = element_text(size = 10,
+                                   family="serif"))+
+  xlim(0,1150)
+
+Sample284 <- sample284 + scale_colour_manual(values=c("#DC3220", "#005AB5")) +
+  scale_fill_manual(values=c("#DC3220", "#005AB5"))
+
+( Sample084 | Sample184 | Sample284)
+
+# Running iNEXT at 84% CI: coverage based
+SC84 <- estimateD(combined, datatype = "abundance", base="coverage", level=0.90256, conf=0.84)
+cov084 <- ggiNEXT(q084, type=3) +
+  labs(x="Sample Coverage", y="Whistle diversity", title="q=0") +
+  theme_clean(base_size=14,
+              base_family="serif") +
+  theme(legend.position="none") +
+  theme(legend.title = element_text(size = 10,
+                                    family= "serif")) +
+  theme(legend.text = element_text(size = 10,
+                                   family="serif"))+
+  xlim(0,1)
+Cov084 <- cov084+ scale_colour_manual(values=c("#DC3220", "#005AB5")) +
+  scale_fill_manual(values=c("#DC3220", "#005AB5"))
+
+cov184 <- ggiNEXT(q184, type=3) + 
+  labs(x="Sample Coverage", y="Whistle diversity", title="q=1") +
+  theme_clean(base_size=14,
+              base_family="serif") +
+  theme(legend.position="none") +
+  theme(legend.title = element_text(size = 10,
+                                    family= "serif")) +
+  theme(legend.text = element_text(size = 10,
+                                   family="serif"))+
+  xlim(0,1)
+Cov184 <- cov184+ scale_colour_manual(values=c("#DC3220", "#005AB5")) +
+  scale_fill_manual(values=c("#DC3220", "#005AB5"))
+
+cov284 <- ggiNEXT(q284, type=3) + 
+  labs(x="Sample Coverage", y="Whistle diversity", title="q=2") +
+  theme_clean(base_size=14,
+              base_family="serif") +
+  theme(legend.position="right") +
+  theme(legend.title = element_text(size = 10,
+                                    family= "serif")) +
+  theme(legend.text = element_text(size = 10,
+                                   family="serif"))+
+  xlim(0,1)
+Cov284 <- cov284+ scale_colour_manual(values=c("#DC3220", "#005AB5")) +
+  scale_fill_manual(values=c("#DC3220", "#005AB5"))
+
+#facet 
+( Cov084 | Cov184 | Cov284)
+
